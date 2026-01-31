@@ -105,6 +105,7 @@ func New(rwc ReadWriteCloser, log core.Logger, opts ...SetupOption) (*TunAdapter
 		rwc: rwc,
 		log: log,
 	}
+		tun.log.Warnf("Warning: new params  %+v",opts)
 	for _, opt := range opts {
 		tun._applyOption(opt)
 	}
@@ -130,7 +131,9 @@ func (tun *TunAdapter) _start() error {
 		go tun.queue()
 		return nil
 	}
+		
 	mtu := uint64(tun.config.mtu)
+	tun.log.Warnf("Warning: start params  %+v",mtu)
 	if tun.rwc.MaxMTU() < mtu {
 		mtu = tun.rwc.MaxMTU()
 	}

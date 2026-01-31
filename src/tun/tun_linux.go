@@ -16,6 +16,8 @@ func (tun *TunAdapter) setup(ifname string, addr string, mtu uint64) error {
 	if ifname == "auto" {
 		ifname = "\000"
 	}
+	tun.log.Warnf("Warning: pre setup params  %+v",mtu)
+	wgtun.CreateTUN()
 	iface, err := wgtun.CreateTUN(ifname, int(mtu))
 	if err != nil {
 		return fmt.Errorf("failed to create TUN: %w", err)

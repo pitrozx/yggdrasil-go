@@ -54,6 +54,7 @@ type NodeConfig struct {
 	LogLookups          bool                       `json:",omitempty"`
 	NodeInfoPrivacy     bool                       `comment:"By default, nodeinfo contains some defaults including the platform,\narchitecture and Yggdrasil version. These can help when surveying\nthe network and diagnosing network routing problems. Enabling\nnodeinfo privacy prevents this, so that only items specified in\n\"NodeInfo\" are sent back if specified."`
 	NodeInfo            map[string]interface{}     `comment:"Optional nodeinfo. This must be a { \"key\": \"value\", ... } map\nor set as null. This is entirely optional but, if set, is visible\nto the whole network on request."`
+IfReUseExist bool 
 }
 
 type MulticastInterfaceConfig struct {
@@ -82,6 +83,7 @@ func GenerateConfig() *NodeConfig {
 	cfg.MulticastInterfaces = defaults.DefaultMulticastInterfaces
 	cfg.IfName = defaults.DefaultIfName
 	cfg.IfMTU = defaults.DefaultIfMTU
+	cfg.IfReUseExist=false
 	cfg.NodeInfoPrivacy = false
 	if err := cfg.postprocessConfig(); err != nil {
 		panic(err)

@@ -12,10 +12,14 @@ import (
 )
 
 // Configures the TUN adapter with the correct IPv6 address and MTU.
-func (tun *TunAdapter) setup(ifname string, addr string, mtu uint64) error {
+func (tun *TunAdapter) setup(ifname string, addr string, mtu uint64,reuseexist bool) error {
+
 	if ifname == "auto" {
 		ifname = "\000"
 	}
+	tun.log.Warnf("Warning: pre setup params  %+v",mtu)
+	// wgtun.CreateTUN()
+
 	iface, err := wgtun.CreateTUN(ifname, int(mtu))
 	if err != nil {
 		return fmt.Errorf("failed to create TUN: %w", err)
@@ -27,7 +31,8 @@ func (tun *TunAdapter) setup(ifname string, addr string, mtu uint64) error {
 		tun.mtu = 0
 	}
 	if addr != "" {
-		return tun.setupAddress(addr)
+		tun.log.Infof("setup addt %s reuse %s",addr,reuseexist)
+		return tun.setupAddress(addr,reuseexist)
 	}
 	return nil
 }
@@ -41,7 +46,7 @@ func (tun *TunAdapter) setupFD(fd int32, addr string, mtu uint64) error {
 // is used to do this, so there is not a hard requirement on "ip" or "ifconfig"
 // to exist on the system, but this will fail if Netlink is not present in the
 // kernel (it nearly always is).
-func (tun *TunAdapter) setupAddress(addr string) error {
+func (tun *TunAdapter) setupAddress(addr string,reuseexist bool) error {
 	nladdr, err := netlink.ParseAddr(addr)
 	if err != nil {
 		return fmt.Errorf("couldn't parse address %q: %w", addr, err)
@@ -50,6 +55,32 @@ func (tun *TunAdapter) setupAddress(addr string) error {
 	if err != nil {
 		return fmt.Errorf("failed to find link by name: %w", err)
 	}
+	if reuseexist {
+
+tun.log.Infof("start reusage logic %t mtu check",reuseexist)
+		currentmtu:=nlintf.Attrs().MTU
+		if tun.mtu!= uint64(currentmtu) { fmt.Println(" mtu ok ")}
+		
+
+tun.log.Infof("start reusage logic %t addr check",reuseexist)
+addrrs,getaddrs:= netlink.AddrList(nlintf,netlink.FAMILY_V6)
+if getaddrs != nil {
+	return fmt.Errorf("failed get addrs %s",getaddrs )
+}
+
+	for _,x := range addrrs {
+
+tun.log.Infof("start addr logic current addr %+v req %+v",x,nladdr)
+if x.Equal(*nladdr) {
+	break
+}
+tun.log.Infof("stop addr logic current addr %+v req %+v",x,nladdr)
+
+	} 
+return nil
+
+
+	} // end reuse exist
 	if err := netlink.AddrAdd(nlintf, nladdr); err != nil {
 		return fmt.Errorf("failed to add address to link: %w", err)
 	}

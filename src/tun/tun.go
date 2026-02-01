@@ -50,6 +50,7 @@ type TunAdapter struct {
 		mtu  InterfaceMTU
 	}
 	ch chan []byte
+ReuseExist bool
 }
 
 // Gets the maximum supported MTU for the platform based on the defaults in
@@ -138,7 +139,7 @@ func (tun *TunAdapter) _start() error {
 	if tun.config.fd > 0 {
 		err = tun.setupFD(tun.config.fd, addr, mtu)
 	} else {
-		err = tun.setup(string(tun.config.name), addr, mtu)
+		err = tun.setup(string(tun.config.name), addr, mtu,tun.ReuseExist)
 	}
 	if err != nil {
 		return err

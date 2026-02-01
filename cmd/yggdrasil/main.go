@@ -274,6 +274,9 @@ func main() {
 			tun.InterfaceName(cfg.IfName),
 			tun.InterfaceMTU(cfg.IfMTU),
 		}
+		if cfg.IfReUseExist {
+			options = append(options, tun.ReuseExist(true))
+		}
 		if n.tun, err = tun.New(ipv6rwc.NewReadWriteCloser(n.core), logger, options...); err != nil {
 			panic(err)
 		}

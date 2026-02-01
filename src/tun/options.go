@@ -8,6 +8,8 @@ func (m *TunAdapter) _applyOption(opt SetupOption) {
 		m.config.mtu = v
 	case FileDescriptor:
 		m.config.fd = int32(v)
+	case ReuseExist:
+		m.ReuseExist=true
 	}
 }
 
@@ -18,7 +20,9 @@ type SetupOption interface {
 type InterfaceName string
 type InterfaceMTU uint64
 type FileDescriptor int32
+type ReuseExist bool 
 
 func (a InterfaceName) isSetupOption()  {}
 func (a InterfaceMTU) isSetupOption()   {}
 func (a FileDescriptor) isSetupOption() {}
+func (a ReuseExist ) isSetupOption()  {}
